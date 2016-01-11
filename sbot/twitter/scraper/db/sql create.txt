@@ -1,0 +1,87 @@
+delimiter $$
+
+CREATE TABLE `t_friendship` (
+  `follower_id` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `following_id` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `date_added` datetime NOT NULL,
+  PRIMARY KEY (`follower_id`,`following_id`),
+  KEY `follower_idx` (`follower_id`),
+  KEY `following_idx` (`following_id`),
+  CONSTRAINT `follower` FOREIGN KEY (`follower_id`) REFERENCES `t_user` (`screen_name`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `following` FOREIGN KEY (`following_id`) REFERENCES `t_user` (`screen_name`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+SELECT * FROM twitter_data.t_friendship;
+
+
+
+
+
+
+
+
+delimiter $$
+
+CREATE TABLE `t_tweet` (
+  `screen_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `poster_screen_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `poster_display_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `text` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `text_html` text CHARACTER SET utf8,
+  `id` bigint(20) NOT NULL,
+  `inline_media` tinyint(1) DEFAULT NULL,
+  `retweets` int(11) DEFAULT NULL,
+  `favorites` int(11) DEFAULT NULL,
+  `posted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `screen_name_idx_idx` (`screen_name`),
+  CONSTRAINT `screen_name_idx` FOREIGN KEY (`screen_name`) REFERENCES `t_user` (`screen_name`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+
+
+
+
+
+
+delimiter $$
+
+CREATE TABLE `t_user` (
+  `screen_name` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `display_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `avatar` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `avatar_small` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `bio` text CHARACTER SET utf8 DEFAULT NULL,
+  `website` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `details_html` text CHARACTER SET utf8 DEFAULT NULL,
+  `followers_nr` int(11) DEFAULT NULL,
+  `following_nr` int(11) DEFAULT NULL,
+  `protected` tinyint(1) DEFAULT '0',
+  `last_active` datetime DEFAULT NULL,
+  `last_updated` datetime DEFAULT NULL,
+  `friendships_last_updated` datetime DEFAULT NULL,
+  `friendships_last_update_full` datetime DEFAULT NULL,
+  `degree` int(11) DEFAULT '1',
+  `main` tinyint(1) DEFAULT '0',
+  `tweets_last_updated` datetime DEFAULT NULL,
+  `tweets_last_update_full` datetime DEFAULT NULL,
+  PRIMARY KEY (`screen_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+
+
+
+
+
+
+ALTER TABLE twitter_data.t_user MODIFY COLUMN display_name VARCHAR(100)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE twitter_data.t_user MODIFY COLUMN bio TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE twitter_data.t_user MODIFY COLUMN details_html TEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+
+
+ALTER TABLE twitter_data.t_tweet MODIFY COLUMN poster_display_name VARCHAR(100)  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE twitter_data.t_tweet MODIFY COLUMN text TEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE twitter_data.t_tweet MODIFY COLUMN text_html TEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+
+
+

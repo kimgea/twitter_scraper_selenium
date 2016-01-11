@@ -1,0 +1,32 @@
+
+
+
+TODO:	
+	- Check if all works ok
+	
+	- Add task manager / scheduller
+		- Controll in config file???
+		- Celery??
+		- When to scrape / active
+			- simulate human usage
+				- sleep, off
+				- awake
+					- scrape in intervalls
+		- scrape limits when active
+			- Do not scrpe to fast
+				- Stay a second or two, or more on each side, like a human
+					- random from normaldistrubution
+			- Add some short delays when scrolling down pages
+				- random from normaldistrubution
+		
+		
+		
+	
+		
+		
+ 		
+		
+	
+
+
+

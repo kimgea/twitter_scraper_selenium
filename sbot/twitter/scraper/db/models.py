@@ -2,6 +2,9 @@
 Created on 25. nov. 2015
 
 @author: kga
+
+Create database ovject by inspecting existing databse tables
+
 '''
 
 from sqlalchemy import create_engine, MetaData, Table
@@ -28,12 +31,7 @@ class Tweets(Base):
  
 #----------------------------------------------------------------------
 def load_session():
-    #metadata = Base.metadata
     Session = sessionmaker(bind=engine)
     session = Session()
     return session
  
-"""if __name__ == "__main__":
-    session = load_session()
-    res = session.query(User).all()
-    print res[0].screen_name"""

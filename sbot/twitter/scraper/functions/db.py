@@ -2,30 +2,8 @@
 Created on 23. nov. 2015
 
 @author: kga
-
-
-
-DB structure
-
-twitter_user(
-    display_name, 
-    screen_name, 
-    user_id,     #Looks like it need api calls to get
-    avatar,
-    avatar_small, 
-    protected, 
-    followers_nr, 
-    following_nr, 
-    ....,
-    updated,
-    friendship_new - datetime,
-    friendship_updated - datetime,
-    degree - int/controlls friendship scrape,
-    )
-
-twitter_friendships(following_id, follower_id, ...)
-
 '''
+
 import logging
 import datetime
 from  sqlalchemy.sql.expression import func
@@ -48,8 +26,9 @@ def store_followers(data, new=False):
         
         PRE:User must exist from before
         
-        @param data: User and its friendship links
-        @param new: True|False - Delete all friendship links and scrape them all again or scrape only new ones  
+        args:
+            data (dict): User and its friendship links
+            new (bool): Delete all friendship links and scrape them all again or scrape only new ones  
     """
     logging.debug(u"store followers of: "+unicode(data.get("user","")))
     _store_friendships(data, True, new)
@@ -60,19 +39,23 @@ def store_followings(data, new=False):
         
         PRE:User must exist from before
         
-        @param data: User and its friendship links
-        @param new: True|False - Delete all friendship links and scrape them all again or scrape only new ones  
+        args:
+            data (dict): User and its friendship links
+            new (bool): Delete all friendship links and scrape them all again or scrape only new ones  
     """
     logging.debug(u"store friends/following of: "+unicode(data.get("user","")))
     _store_friendships(data, False, new)
 
 def _store_friendships(data, followers=True, new=False):
     """
+        Store users friendship links 
+        
         PRE:User must exist from before
         
-        @param data: User and its friendship links
-        @param followers: True|False - is friendship links in data followers of user or users user is following.
-        @param new: True|False - Delete all friendship links and scrape them all again or scrape only new ones  
+        args:
+            data (dict): User and its friendship links
+            followers (bool): Followers or following?
+            new (bool): Delete all friendship links and scrape them all again or scrape only new ones  
     """
     
     user = data["user"]    
@@ -136,8 +119,9 @@ def store_tweets(data, new=False):
         
         PRE:User must exist from before
         
-        @param data: User and its friendship links
-        @param new: True|False - Delete all friendship links and scrape them all again or scrape only new ones  
+        args:
+            data (dict): User and its friendship links
+            new (bool): Delete all friendship links and scrape them all again or scrape only new ones  
     """
     user = data["user"]    
     items = data["data"]
@@ -169,6 +153,9 @@ def store_tweets(data, new=False):
     
 
 def _user_prep(data):
+    """
+        Prepare data to be accaptable for db storage
+    """
     data = data["data"]
     
     updated = datetime.datetime.now()
@@ -185,6 +172,12 @@ def _user_prep(data):
     return ctx
 
 def update_user(data):
+    """
+        Update user info in db
+        
+        args:
+            data (dict): User fields to be updated
+    """
     
     ctx = _user_prep(data)    
     
@@ -197,6 +190,14 @@ def update_user(data):
 
 # ________________ EXIST cheks_____________________________
 def exist_friendship(following, follower):
+    """
+        Check if friendship exist in db
+        
+        args:
+            following (str): user screen_name (It is db user id). It is the person being followed
+            follower (str): user screen_name (It is db user id). It is the person following the other user
+        
+    """
     session = models.load_session()
     if session.query(models.Friendship).filter_by(follower_id=follower, following_id=following).first() != None:
         return True
@@ -204,12 +205,24 @@ def exist_friendship(following, follower):
 
 
 def exist_user(user):
+    """
+        Check if user exist in db
+        
+        args:
+            user (str): twitter user screen_name
+    """
     session = models.load_session()
     if session.query(models.User).filter_by(screen_name=user).first() != None:
         return True
     return False
 
 def exist_tweet(tweet_id):
+    """
+        Check if tweet exist in db
+        
+        args:
+            tweet_id (str): twitter tweets real id
+    """
     session = models.load_session()
     if session.query(models.Tweets).filter_by(id=tweet_id).first() != None:
         return True
@@ -219,6 +232,9 @@ def exist_tweet(tweet_id):
 def get_user_degree(user):
     """
         Get users degree of importance.
+        
+        args:
+            user (srt): Twitter user screen_name
     """
     session = models.load_session()
     user = session.query(models.User).filter_by(screen_name=user).first()
@@ -226,59 +242,29 @@ def get_user_degree(user):
         return user.degree
     return None
 
-"""def _pick_user_friendship():
-    session = models.load_session()
-    #1. If main user never scraped
-    users = session.query(models.User).filter(models.User.degree <= twitter_config.DEGREE_FULL_SCRAPE,
-                                              models.User.friendships_last_updated == None, models.User.main == True)
-    if users.first():
-        return users
-    #2. If main user to old since update
-    tresh = datetime.datetime.now() - datetime.timedelta(days=twitter_config.USER_MAIN_FRIENDSHIP_UPDATED_DELTA_DAYS)
-    users = session.query(models.User).filter(models.User.degree <= twitter_config.DEGREE_FULL_SCRAPE,
-                                              models.User.last_updated < tresh, models.User.main == True)
-    if users.first():
-        return users
-    #3. if user never scraped
-    users = session.query(models.User).filter(models.User.degree <= twitter_config.DEGREE_FULL_SCRAPE,
-                                              models.User.last_updated == None, models.User.main == False)
-    if users.first():
-        return users
-    #4. If user to old since update
-    tresh = datetime.datetime.now() - datetime.timedelta(weeks=twitter_config.USER_FRIENDSHIP_UPDATED_DELTA_WEEKS)
-    users = session.query(models.User).filter(models.User.degree <= twitter_config.DEGREE_FULL_SCRAPE,
-                                              models.User.friendships_last_updated < tresh, models.User.main == False)
-    return users
-
-def _pick_user():
-    session = models.load_session()
-    #1. If main user never scraped
-    users = session.query(models.User).filter(models.User.last_updated == None, models.User.main == True)
-    if users.first():
-        return users
-    #2. If main user to old
-    tresh = datetime.datetime.now() - datetime.timedelta(days=twitter_config.USER_MAIN_UPDATED_DELTA_DAYS)
-    users = session.query(models.User).filter(models.User.last_updated < tresh, models.User.main == True)
-    if users.first():
-        return users
-    #3. if user never scraped
-    users = session.query(models.User).filter(models.User.last_updated == None, models.User.main == False)
-    if users.first():
-        return users
-    #4. If user to old
-    tresh = datetime.datetime.now() - datetime.timedelta(weeks=twitter_config.USER_UPDATED_DELTA_WEEKS)
-    users = session.query(models.User).filter(models.User.last_updated < tresh, models.User.main == False)
-    return users
-
-def _pick_tweet():
-    return None"""
-
 def get_user(screen_name):
+    """
+        Get user from db
+        
+        args:
+            screen_name (str): Twitter user screen_name
+    """
     session = models.load_session()
     return session.query(models.User).filter(models.User.screen_name==screen_name).first()
     
     
 def _get_random_user(last_updated=None, user_main_delta=None, user_full_delta=None, user_delta=None):
+    """
+        get ranfom user from db acording to some rules.
+        Check get_random_user() for mor info. 
+        
+        args:
+            last_updated (str): Field name for colum that stores the last updated information.
+                Tweets, friendship and user info, has their own field where last updated for each of them is stored
+            user_main_delta (int): Days main users can go before it has to be updated again
+            user_full_delta (in): Days full users (high degree but not main) can go before it has to be updated again
+            user_delta (in): Days regular users can go before it has to be updated again
+    """
     session = models.load_session()
     model = models.User
     
@@ -326,7 +312,21 @@ def _get_random_user(last_updated=None, user_main_delta=None, user_full_delta=No
 
 def get_random_user(method):
     """
-        Pick random user from db
+        Pick random user from db acording to some rules
+        
+        Pick first that is true
+        1. If main user never scraped, then scrape it
+        2. If main user to long since scraped, then scrape it
+        3. If user with degree priority high enough to be fully scraped never was scraped, then scrape it
+        4. If user with degree priority high enough to be fully scraped is to long since updated, then scrape it
+        5. if user never scraped, then scrape it
+        6. If user to old since update, then scrape it
+        
+        todo:
+            remove or keep rule 5 and 6? 
+        
+        args:
+            method (str): friendship|user|tweet. Used to pick which last updated field to check
     """
     users=None
     if method == "friendship":
@@ -359,6 +359,11 @@ def get_random_user(method):
 def add_new_user(user, degree=1, main=False):
     """
         IF user exist, then update it with given degree and main
+        
+        args:
+            user (str): twitter user screen_name
+            degree (int): users degree of seperation
+            main (bool): it this a main user or not
     """
     session = models.load_session()
     friend = models.User(screen_name=user, degree=degree, main=main)
@@ -370,5 +375,5 @@ def add_new_user(user, degree=1, main=False):
         session.query(models.User).filter_by(screen_name=user).update({"degree":degree, "main":main})
         session.commit()
         
-#add_new_user("FictionalUni", degree=1)
+
 

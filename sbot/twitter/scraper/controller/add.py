@@ -12,7 +12,8 @@ def add_user(user, degree=1):
         Add user to be scraped
         IF user exist, then update it with given degree
         
-        @param user:  twitter user screen name
-        @param degree: indicates how important user is 
+        args:
+            user (string):  twitter user screen name
+            degree (int): indicates how important user is 
     """
     db_functions.add_new_user(user, degree)

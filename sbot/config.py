@@ -71,6 +71,10 @@ TWITTER_SCRAPER_CONTROLLER_TWEET_USER_RESCRAPE_DELTA = 90
 
 """
     How many items that are scraped
+    NOTE: 
+        this is curently not exact. It usualy scrapes and store more.
+            It is used controll the page scroll behavior. It stops when 
+            it has scrolled over max items.
 """
 TWITTER_SCRAPER_CONTROLLER_FRIENDSHIP_USER_MAX_SCRAPE = 10
 TWITTER_SCRAPER_CONTROLLER_FRIENDSHIP_USER_MAIN_MAX_SCRAPE = 10

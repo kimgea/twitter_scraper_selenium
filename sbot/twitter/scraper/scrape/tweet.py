@@ -13,6 +13,13 @@ import sbot.twitter.scraper.functions.helper as helper
 
 
 class GetTweets(timeline.GetTimlineBase):
+    """    
+        Get tweets class.
+        
+        args:
+            max_items (int): max number of items/firends to be scraped
+            new (bool): scrape from scratch or scrape untill existing item/friendship is found
+    """
     def __init__(self,max_items=0, new=False):
         super(GetTweets,self).__init__(max_items=max_items, new=new)
         
@@ -20,6 +27,9 @@ class GetTweets(timeline.GetTimlineBase):
         return self.base_url + self.user + "/"
     
     def item_exist(self):
+        """
+            Check last item in current html list to se if it exist
+        """
         element = self.browser.find_elements_by_class_name("Timeline-item")[-1]
         iid = element.find_element_by_class_name("Tweet").get_attribute('data-tweet-id')
         return dbfunctions.exist_tweet(iid)
@@ -29,6 +39,9 @@ class GetTweets(timeline.GetTimlineBase):
         
         
     def scrape_items(self):
+        """
+            Scrape tweet information
+        """
         items=[]
         for element in self.browser.find_elements_by_class_name("Timeline-item"):
             item={}
@@ -68,10 +81,3 @@ class GetTweets(timeline.GetTimlineBase):
 
 
 
-#662755416011612160
-"""import sbot.twitter.scraper.functions.db as db_functions
-db_functions.add_new_user("FictionalUni",1,True)       
-user = "FictionalUni"
-temp = GetTweets(10)
-temp.run(user)
-"""

@@ -18,8 +18,12 @@ from base import ScrapeBaseSelenium
 
 
 class GetTimlineBase(ScrapeBaseSelenium):
-    """
-        Base timeline scraper class.
+    """    
+        Get timeline base class.
+        
+        args:
+            max_items (int): max number of items/firends to be scraped
+            new (bool): scrape from scratch or scrape untill existing item/friendship is found
     """
     def __init__(self, max_items=0, new=False):
         super(GetTimlineBase,self).__init__()
@@ -36,11 +40,18 @@ class GetTimlineBase(ScrapeBaseSelenium):
     def scrape_items(self):
         """
             Overwrite this method
-            Check if item is added earlier. Used in scroll page
+            Scrapeing of data is moved to this function in timeline classes
         """
         raise NotImplementedError("Please Implement scrape_items method")
     
     def scroll_page(self):
+        """
+            Scrols current page down.
+                all the way 
+                or until existing item is found 
+                or until max items are scrolled over
+                or stops if site timesout
+        """
         logging.debug(u"start scrolling page")
         while True:
         
@@ -51,7 +62,7 @@ class GetTimlineBase(ScrapeBaseSelenium):
             
             elemsCount = self.browser.execute_script("return document.querySelectorAll('.Timeline-item').length")
             
-            if elemsCount > self.max_items and self.max_items != 0:
+            if elemsCount > self.max_items and self.max_items > 0:
                 logging.debug(u"STOP scrolling page - max items found")
                 break
             #Scroll

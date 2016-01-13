@@ -22,17 +22,22 @@ import sbot.twitter.scraper.config as twitter_config
 ##########################################
 def scrape_one_user():
     """
-        Scrape user info about one random user
-            that is not scraped before, or very long since last scraped
+        Scrape user info about one random user that is not scraped before, 
+        or very long since last scraped
     """
     user = db_functions.get_random_user("user")
     if not user: return
-    scrape_user(user)
+    scrape_user(user.screen_name)
     
 def scrape_user(user):
     """
-        PRE: User must exist
-        POST: user is scraped
+        Scrape user info. Do not scrape tmeline info like friends and tweets. 
+        
+        Note:
+            User might have to exist in db to be scraped. CHECK
+             
+        args:
+            user (optional): Twitter user screen_name must be property of object
     """
     temp = GetUser()
     temp.run(user.screen_name)
@@ -41,8 +46,8 @@ def scrape_user(user):
 ############################################    
 def scrape_one_tweet():
     """
-        Scrape tweets of one random user
-            that is not scraped before, or very long since last scraped
+        Scrape tweets of one random user that is not scraped before, 
+        or very long since last scraped
     """
     
     user = db_functions.get_random_user("tweet")
@@ -59,8 +64,14 @@ def scrape_one_tweet():
     
 def scrape_tweet(user, full=False):
     """
-        pre: user must exist
-        post: tweets from user is scraped
+        Scrape tweets. 
+        
+        Note:
+            User might have to exist in db to be scraped. CHECK
+             
+        args:
+            user (optional): Twitter user screen_name must be property of object
+            full (bool): scrape all tweets or stop when scraped before. IF true deletes old tweets from db
     """
     if user.main:
         nr = twitter_config.TWEET_USER_MAIN_MAX_SCRAPE
@@ -74,8 +85,8 @@ def scrape_tweet(user, full=False):
 ############################################    
 def scrape_one_friendship():
     """
-        Scrape all followers and following of one random user
-            that is mot scraped before, or very long since last scraped
+        Scrape all followers and following of one random user that is mot scraped before, 
+        or very long since last scraped
     """
     logging.debug(u"Scrape one users friendships")
     user = db_functions.get_random_user("friendship")   
@@ -95,8 +106,14 @@ def scrape_one_friendship():
     
 def scrape_friendship(user, full=False):
     """
-        pre: user must exist
-        post: friendship connections for user is scraped
+        Scrape user friendships. Friends and followers. 
+        
+        Note:
+            User might have to exist in db to be scraped. CHECK
+             
+        args:
+            user (optional): Twitter user screen_name must be property of object
+            full (bool): scrape all tweets or stop when scraped before. IF true deletes old tweets from db
     """
     logging.debug(u"Scrape friendship of user: "+unicode(user))
     if user.main:
@@ -109,6 +126,7 @@ def scrape_friendship(user, full=False):
     temp = GetFollowers(max_items=nr, new=full)
     temp.run(user.screen_name)
 #______________________________________________
+
 
 if __name__ == "__main__":
     db_functions.add_new_user("FictionalUni",1,True)

@@ -14,8 +14,10 @@ import sbot.twitter.scraper.functions.helper as helper
 
 
 class GetUser(ScrapeBaseSelenium):
-    
-    def __init__(self, new=False):
+    """    
+        Get user class.
+    """
+    def __init__(self):
         super(GetUser,self).__init__()
         
     def make_url(self):
@@ -25,7 +27,9 @@ class GetUser(ScrapeBaseSelenium):
         dbfunctions.update_user(self.get_storage_data())
         
     def scrape_data(self):
-        
+        """
+            Scrape user data
+        """
         item = {}
         item["display_name"] = self.browser.find_element_by_class_name("UserProfileHeader-displayName").text.split("\n")[0]
         item["screen_name"] = self.browser.find_element_by_class_name("UserProfileHeader-screenName").text.strip("@")
@@ -60,9 +64,3 @@ class GetUser(ScrapeBaseSelenium):
         
         self.data = item
         
-
-
-"""dbfunctions.add_new_user("TheEllenShow",1,True)
-temp = GetUser()
-temp.run("TheEllenShow")"""
-    

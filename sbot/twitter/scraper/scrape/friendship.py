@@ -14,6 +14,10 @@ import sbot.twitter.scraper.functions.db as dbfunctions
 class GetFriends(timeline.GetTimlineBase):
     """    
         Get friendship base class.
+        
+        args:
+            max_items (int): max number of items/firends to be scraped
+            new (bool): scrape from scratch or scrape untill existing item/friendship is found
     """
     def __init__(self,max_items=0, new=False):
         super(GetFriends,self).__init__(max_items=max_items, new=new)
@@ -22,6 +26,9 @@ class GetFriends(timeline.GetTimlineBase):
         """
             Overwrite 
             Connect to db to check if exist. DB call depend on following or follower
+            
+            args:
+                screen_name (str): Twitter users screen_name. Screen name of friend/follower to be checked
         """
         raise NotImplementedError("Please Implement _item_exist_check method")
     
@@ -36,6 +43,9 @@ class GetFriends(timeline.GetTimlineBase):
         return False
     
     def scrape_items(self):
+        """
+            Scrape friendship information
+        """
         logging.debug(u"start scrape data")
         items=[]
         for element in self.browser.find_elements_by_class_name("Timeline-item"):
@@ -59,6 +69,13 @@ class GetFriends(timeline.GetTimlineBase):
                 
                 
 class GetFollowers(GetFriends):
+    """    
+        Get followers class.
+        
+        args:
+            max_items (int): max number of items/firends to be scraped
+            new (bool): scrape from scratch or scrape untill existing item/friendship is found
+    """
     def __init__(self,max_items=0, new=False):
         super(GetFollowers,self).__init__(max_items=max_items, new=new)
     
@@ -74,6 +91,13 @@ class GetFollowers(GetFriends):
         
         
 class GetFollowing(GetFriends):
+    """    
+        Get following/friends class.
+        
+        args:
+            max_items (int): max number of items/firends to be scraped
+            new (bool): scrape from scratch or scrape untill existing item/friendship is found
+    """
     def __init__(self,max_items=0, new=False):
         super(GetFollowing,self).__init__(max_items=max_items, new=new)
         

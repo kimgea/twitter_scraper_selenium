@@ -27,7 +27,7 @@ def scrape_one_user():
     """
     user = db_functions.get_random_user("user")
     if not user: return
-    scrape_user(user.screen_name)
+    scrape_user(user)
     
 def scrape_user(user):
     """
@@ -130,6 +130,8 @@ def scrape_friendship(user, full=False):
 
 if __name__ == "__main__":
     db_functions.add_new_user("FictionalUni",1,True)
+    #scrape_friendship(db_functions.get_user("FictionalUni"))
+    #scrape_tweet(db_functions.get_user("FictionalUni"))
     scrape_one_user()
     scrape_one_tweet()
     scrape_one_friendship()
